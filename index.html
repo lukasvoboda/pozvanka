@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mám otázku...</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffe6e6;
+            margin: 0;
+            overflow: hidden;
+            text-align: center;
+        }
+        #step1, #step2, #step3 {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        #step1 {
+            display: flex;
+        }
+        h1 {
+            color: #d63031;
+            margin-bottom: 20px;
+        }
+        .btn-container {
+            position: relative;
+            width: 300px;
+            height: 100px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .btn {
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            transition: 0.1s;
+        }
+        #btn-yes {
+            background-color: #2ecc71;
+            color: white;
+        }
+        #btn-yes:hover {
+            background-color: #27ae60;
+            transform: scale(1.1);
+        }
+        #btn-no {
+            background-color: #e74c3c;
+            color: white;
+            position: absolute;
+            right: 20px;
+        }
+        input[type="date"] {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin: 15px 0;
+            width: 100%;
+        }
+        #submit-btn {
+            background-color: #3498db;
+            color: white;
+            width: 100%;
+        }
+        #submit-btn:hover {
+            background-color: #2980b9;
+        }
+        .calendar-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .cal-link {
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .google-btn { background-color: #f39c12; }
+        .google-btn:hover { background-color: #e67e22; }
+        .apple-btn { background-color: #333; }
+        .apple-btn:hover { background-color: #111; }
+    </style>
+</head>
+<body>
+
+    <!-- Krok 1: Otázka -->
+    <div id="step1">
+        <h1>Půjdeš se mnou na rande? 😊</h1>
+        <div class="btn-container">
+            <button id="btn-yes" class="btn" onclick="showCalendar()">Ano</button>
+            <button id="btn-no" class="btn">Ne</button>
+        </div>
+    </div>
+
+    <!-- Krok 2: Výběr data -->
+    <div id="step2">
+        <h1>Skvělé! Vyber den, který se ti hodí.</h1>
+        <p>Čas je fixně stanoven na 20:00.</p>
+        
+        <form id="dateForm">
+            <input type="date" name="datum" id="date-picker" required>
+            <button type="submit" class="btn" id="submit-btn">Potvrdit</button>
+        </form>
+    </div>
+
+    <!-- Krok 3: Hotovo a Kalendář -->
+    <div id="step3">
+        <h1>Těším se! 🎉</h1>
+        <p>Dej si to rovnou do kalendáře, ať nezapomeneš.</p>
+        <div class="calendar-buttons">
+            <a id="cal-link-google" class="cal-link google-btn" href="#" target="_blank">📅 Google Kalendář</a>
+            <a id="cal-link-apple" class="cal-link apple-btn" href="#" download="rande.ics">🍏 Apple Kalendář (a další)</a>
+        </div>
+    </div>
+
+    <script>
+        // Logika pro utíkající tlačítko "Ne"
+        const btnNo = document.getElementById('btn-no');
+        
+        function moveButton() {
+            const x = Math.random() * (window.innerWidth - btnNo.offsetWidth - 50);
+            const y = Math.random() * (window.innerHeight - btnNo.offsetHeight - 50);
+            
+            btnNo.style.position = 'fixed';
+            btnNo.style.left = `${Math.max(10, x)}px`;
+            btnNo.style.top = `${Math.max(10, y)}px`;
+        }
+
+        btnNo.addEventListener('mouseover', moveButton);
+        btnNo.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moveButton();
+        });
+
+        // Přepnutí na kalendář
+        function showCalendar() {
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'flex';
+        }
+
+        // Zpracování dat po potvrzení
+        const form = document.getElementById('dateForm');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            
+            const selectedDate = document.getElementById('date-picker').value;
+            if(selectedDate) {
+                // Připravíme formát data
+                const dateStr = selectedDate.replace(/-/g, '');
+                const startTime = `${dateStr}T200000`;
+                const endTime = `${dateStr}T220000`;
+
+                // 1. Odkaz do Google kalendáře
+                const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Rande&dates=${startTime}/${endTime}&details=Těším%20se!&ctz=Europe/Prague`;
+                document.getElementById('cal-link-google').href = gCalUrl;
+
+                // 2. Odkaz pro Apple Kalendář (vygenerování .ics souboru)
+                const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Moje Pozvanka//CZ\nBEGIN:VEVENT\nSUMMARY:Rande\nDTSTART;TZID=Europe/Prague:${startTime}\nDTEND;TZID=Europe/Prague:${endTime}\nDESCRIPTION:Těším se!\nEND:VEVENT\nEND:VCALENDAR`;
+                
+                // Vytvoření virtuálního souboru ke stažení
+                const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                const appleUrl = URL.createObjectURL(blob);
+                document.getElementById('cal-link-apple').href = appleUrl;
+
+                // 3. Téma pro ntfy.sh (přesně jak jsi chtěl)
+                const ntfyTopic = 'ADELA_1'; 
+
+                // Odeslání push notifikace na mobil
+                fetch(`https://ntfy.sh/${ntfyTopic}`, {
+                    method: 'POST',
+                    body: `Řekla ANO! Vybrané datum je: ${selectedDate} ve 20:00.`
+                }).then(() => {
+                    document.getElementById('step2').style.display = 'none';
+                    document.getElementById('step3').style.display = 'flex';
+                }).catch(() => {
+                    document.getElementById('step2').style.display = 'none';
+                    document.getElementById('step3').style.display = 'flex';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
