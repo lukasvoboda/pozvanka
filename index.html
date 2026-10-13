@@ -3,148 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mám otázku...</title>
+    <title>Pozvánka</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
+            background-color: #13111C;
+            color: #FFFFFF;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background-color: #ffe6e6;
-            margin: 0;
+            min-height: 100vh;
             overflow: hidden;
-            text-align: center;
+            padding: 20px;
         }
-        #step1, #step2, #step3 {
+
+        .card {
+            background-color: #1D1B2B;
+            border: 1px solid #2E2B40;
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             display: none;
             flex-direction: column;
-            align-items: center;
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        #step1 {
-            display: flex;
-        }
-        h1 {
-            color: #d63031;
-            margin-bottom: 20px;
-        }
-        .btn-container {
             position: relative;
-            width: 300px;
-            height: 100px;
+        }
+
+        .active-step {
             display: flex;
-            justify-content: space-around;
-            align-items: center;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            letter-spacing: 2px;
+            font-weight: 800;
+            margin-bottom: 30px;
+        }
+        .header-left { color: #8F8D9C; text-transform: uppercase; }
+        .header-right { color: #FF5E8E; }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+        p.subtitle {
+            color: #A19EAB;
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        .buttons-row {
+            display: flex;
+            gap: 15px;
+            position: relative;
+            min-height: 56px;
         }
         .btn {
-            padding: 12px 24px;
+            padding: 16px 32px;
             font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
+            font-weight: 800;
+            border-radius: 14px;
             border: none;
-            border-radius: 8px;
-            transition: 0.1s;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            white-space: nowrap;
+            min-width: 100px;
+            height: 56px; 
         }
-        #btn-yes {
-            background-color: #2ecc71;
-            color: white;
+        .btn-primary {
+            background-color: #FF5E8E;
+            color: #13111C;
         }
-        #btn-yes:hover {
-            background-color: #27ae60;
-            transform: scale(1.1);
+        .btn-primary:hover {
+            background-color: #ff477e;
+            transform: scale(1.05);
+        }
+        .btn-secondary {
+            background-color: transparent;
+            color: #A19EAB;
+            border: 1px solid #343145;
         }
         #btn-no {
-            background-color: #e74c3c;
-            color: white;
+            z-index: 100;
             position: absolute;
-            right: 20px;
+            left: 115px;
         }
-        input[type="date"] {
-            padding: 10px;
+
+        .back-link {
+            color: #A19EAB;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: inline-block;
+            cursor: pointer;
+            align-self: flex-start;
+        }
+        .back-link:hover { color: #FFFFFF; }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .cal-nav {
+            background: transparent;
+            border: 1px solid #343145;
+            color: #FFF;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.2s;
+        }
+        .cal-nav:hover { background: #343145; }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+        .day-name {
+            color: #8F8D9C;
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .day {
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            font-weight: 600;
             font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin: 15px 0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .day.empty { visibility: hidden; }
+        .day.disabled {
+            color: #343145;
+            cursor: not-allowed;
+        }
+        .day.selectable {
+            background-color: #3D2133;
+            color: #FFB3C6;
+        }
+        .day.selectable:hover {
+            background-color: #5C2D45;
+        }
+        .day.selected {
+            background-color: #FF5E8E !important;
+            color: #13111C !important;
+        }
+
+        .divider {
+            border-top: 1px dashed #343145;
+            margin: 25px 0;
+        }
+        .time-row {
+            display: flex;
+            align-items: baseline;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .time-huge {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .time-sub {
+            color: #A19EAB;
+            font-size: 14px;
+        }
+        .btn-submit {
             width: 100%;
+            background-color: #FF5E8E;
+            color: #13111C;
         }
-        #submit-btn {
-            background-color: #3498db;
-            color: white;
-            width: 100%;
+        .btn-submit:disabled {
+            background-color: #343145;
+            color: #8F8D9C;
+            cursor: not-allowed;
         }
-        #submit-btn:hover {
-            background-color: #2980b9;
-        }
-        .calendar-buttons {
+
+        .final-buttons {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 12px;
         }
         .cal-link {
-            padding: 12px 20px;
-            color: white;
+            padding: 16px;
             text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
+            border-radius: 12px;
+            font-weight: 800;
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 10px;
+            align-items: center;
+            transition: 0.2s;
+            color: #FFF;
         }
-        .google-btn { background-color: #f39c12; }
-        .google-btn:hover { background-color: #e67e22; }
-        .apple-btn { background-color: #333; }
-        .apple-btn:hover { background-color: #111; }
+        .apple-bg { background-color: #1D1B2B; border: 1px solid #343145; }
+        .apple-bg:hover { background-color: #2E2B40; }
+
+        @media (max-width: 400px) {
+            .card { padding: 30px 20px; }
+            h1 { font-size: 32px; }
+            .time-huge { font-size: 28px; }
+            .btn { font-size: 16px; padding: 14px 24px; min-width: 80px; }
+            #btn-no { left: 95px; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- Krok 1: Otázka -->
-    <div id="step1">
-        <h1>Půjdeš se mnou na rande? 😊</h1>
-        <div class="btn-container">
-            <button id="btn-yes" class="btn" onclick="showCalendar()">Ano</button>
-            <button id="btn-no" class="btn">Ne</button>
+    <!-- KROK 1: Úvodní otázka -->
+    <div id="step1" class="card active-step">
+        <div class="card-header">
+            <span class="header-left">Pozvánka</span>
+            <span class="header-right">RSVP</span>
+        </div>
+        <h1>Adélo, půjdeš se mnou na rande?</h1>
+        <p class="subtitle">Začátek je vždycky ve 20:00. Den si vybereš v dalším kroku.</p>
+        
+        <div class="buttons-row" id="buttons-container">
+            <button class="btn btn-primary" onclick="goToStep2()">Ano</button>
+            <button id="btn-no" class="btn btn-secondary">Ne</button>
         </div>
     </div>
 
-    <!-- Krok 2: Výběr data -->
-    <div id="step2">
-        <h1>Skvělé! Vyber den, který se ti hodí.</h1>
-        <p>Čas je fixně stanoven na 20:00.</p>
+    <!-- KROK 2: Vlastní kalendář -->
+    <div id="step2" class="card">
+        <div class="card-header">
+            <span class="header-left">Pozvánka</span>
+            <span class="header-right">RSVP</span>
+        </div>
+        <a class="back-link" onclick="goToStep1()">← Zpět</a>
         
-        <form id="dateForm">
-            <input type="date" name="datum" id="date-picker" required>
-            <button type="submit" class="btn" id="submit-btn">Potvrdit</button>
-        </form>
+        <h1>Super. Který den ti vyhovuje?</h1>
+        
+        <div class="calendar-header">
+            <button class="cal-nav" onclick="changeMonth(-1)">←</button>
+            <span id="month-year-display">Říjen 2026</span>
+            <button class="cal-nav" onclick="changeMonth(1)">→</button>
+        </div>
+
+        <div class="calendar-grid" id="calendar-grid"></div>
+
+        <div class="divider"></div>
+
+        <div class="time-row">
+            <div class="time-huge">20:00</div>
+            <div class="time-sub">Čas je pevně daný. Vybrat jde jen den.</div>
+        </div>
+
+        <button id="btn-submit" class="btn btn-submit" disabled onclick="submitForm()">Vyber datum v kalendáři</button>
     </div>
 
-    <!-- Krok 3: Hotovo a Kalendář -->
-    <div id="step3">
+    <!-- KROK 3: Potvrzení a uložení -->
+    <div id="step3" class="card">
+        <div class="card-header">
+            <span class="header-left">Pozvánka</span>
+            <span class="header-right">Hotovo</span>
+        </div>
+        <!-- Přidáno tlačítko pro návrat z posledního kroku zpět na výběr data -->
+        <a class="back-link" onclick="goBackToStep2()">← Zpět na výběr data</a>
+
         <h1>Těším se! 🎉</h1>
-        <p>Dej si to rovnou do kalendáře, ať nezapomeneš.</p>
-        <div class="calendar-buttons">
-            <a id="cal-link-google" class="cal-link google-btn" href="#" target="_blank">📅 Google Kalendář</a>
-            <a id="cal-link-apple" class="cal-link apple-btn" href="#" download="rande.ics">🍏 Apple Kalendář (a další)</a>
+        <p class="subtitle">Mám to poznačené. Dej si to rovnou do svého kalendáře, ať nezapomeneš.</p>
+        
+        <div class="final-buttons">
+            <a id="cal-link-apple" class="cal-link apple-bg" href="#" download="rande.ics">🍏 Uložit do kalendáře</a>
         </div>
     </div>
 
     <script>
-        // Logika pro utíkající tlačítko "Ne"
+        /* --- 1. LOGIKA ÚTĚKU TLAČÍTKA "NE" --- */
         const btnNo = document.getElementById('btn-no');
-        
+        let isEscaped = false;
+
         function moveButton() {
-            const x = Math.random() * (window.innerWidth - btnNo.offsetWidth - 50);
-            const y = Math.random() * (window.innerHeight - btnNo.offsetHeight - 50);
+            const btnWidth = btnNo.offsetWidth;
+            const btnHeight = btnNo.offsetHeight;
             
-            btnNo.style.position = 'fixed';
-            btnNo.style.left = `${Math.max(10, x)}px`;
-            btnNo.style.top = `${Math.max(10, y)}px`;
+            if (!isEscaped) {
+                const rect = btnNo.getBoundingClientRect();
+                document.body.appendChild(btnNo);
+                
+                btnNo.style.position = 'fixed';
+                btnNo.style.width = btnWidth + 'px';
+                btnNo.style.height = btnHeight + 'px';
+                btnNo.style.margin = '0';
+                
+                btnNo.style.left = rect.left + 'px';
+                btnNo.style.top = rect.top + 'px';
+                
+                btnNo.offsetHeight; 
+                isEscaped = true;
+            }
+            
+            const maxX = window.innerWidth - btnWidth - 20;
+            const maxY = window.innerHeight - btnHeight - 20;
+            
+            const newX = Math.max(20, Math.random() * maxX);
+            const newY = Math.max(20, Math.random() * maxY);
+            
+            btnNo.style.left = newX + 'px';
+            btnNo.style.top = newY + 'px';
         }
 
         btnNo.addEventListener('mouseover', moveButton);
@@ -153,52 +341,150 @@
             moveButton();
         });
 
-        // Přepnutí na kalendář
-        function showCalendar() {
-            document.getElementById('step1').style.display = 'none';
-            document.getElementById('step2').style.display = 'flex';
+        /* --- 2. PŘEPÍNÁNÍ KROKŮ --- */
+        function goToStep1() {
+            document.getElementById('step2').classList.remove('active-step');
+            document.getElementById('step1').classList.add('active-step');
+            
+            if (isEscaped) {
+                const buttonsContainer = document.getElementById('buttons-container');
+                buttonsContainer.appendChild(btnNo);
+                
+                btnNo.style.position = 'absolute';
+                btnNo.style.width = '';
+                btnNo.style.height = '';
+                btnNo.style.left = '';
+                if (window.innerWidth <= 400) {
+                     btnNo.style.left = '95px';
+                } else {
+                     btnNo.style.left = '115px';
+                }
+                btnNo.style.top = '0';
+                
+                isEscaped = false;
+            }
         }
 
-        // Zpracování dat po potvrzení
-        const form = document.getElementById('dateForm');
-        form.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            
-            const selectedDate = document.getElementById('date-picker').value;
-            if(selectedDate) {
-                // Připravíme formát data
-                const dateStr = selectedDate.replace(/-/g, '');
-                const startTime = `${dateStr}T200000`;
-                const endTime = `${dateStr}T220000`;
+        function goToStep2() {
+            document.getElementById('step1').classList.remove('active-step');
+            document.getElementById('step2').classList.add('active-step');
+            renderCalendar();
+        }
 
-                // 1. Odkaz do Google kalendáře
-                const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Rande&dates=${startTime}/${endTime}&details=Těším%20se!&ctz=Europe/Prague`;
-                document.getElementById('cal-link-google').href = gCalUrl;
+        function goBackToStep2() {
+            // Funkce pro návrat z Kroku 3 zpět do Kroku 2
+            document.getElementById('step3').classList.remove('active-step');
+            document.getElementById('step2').classList.add('active-step');
+        }
 
-                // 2. Odkaz pro Apple Kalendář (vygenerování .ics souboru)
-                const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Moje Pozvanka//CZ\nBEGIN:VEVENT\nSUMMARY:Rande\nDTSTART;TZID=Europe/Prague:${startTime}\nDTEND;TZID=Europe/Prague:${endTime}\nDESCRIPTION:Těším se!\nEND:VEVENT\nEND:VCALENDAR`;
-                
-                // Vytvoření virtuálního souboru ke stažení
-                const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-                const appleUrl = URL.createObjectURL(blob);
-                document.getElementById('cal-link-apple').href = appleUrl;
+        /* --- 3. LOGIKA VLASTNÍHO KALENDÁŘE --- */
+        const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
+        const dayNamesShort = ["ne", "po", "út", "st", "čt", "pá", "so"];
+        const dayNamesGenitive = ["ledna", "února", "března", "dubna", "května", "června", "července", "srpna", "září", "října", "listopadu", "prosince"];
 
-                // 3. Téma pro ntfy.sh (přesně jak jsi chtěl)
-                const ntfyTopic = 'ADELA_1'; 
+        const today = new Date();
+        today.setHours(0,0,0,0);
 
-                // Odeslání push notifikace na mobil
-                fetch(`https://ntfy.sh/${ntfyTopic}`, {
-                    method: 'POST',
-                    body: `Řekla ANO! Vybrané datum je: ${selectedDate} ve 20:00.`
-                }).then(() => {
-                    document.getElementById('step2').style.display = 'none';
-                    document.getElementById('step3').style.display = 'flex';
-                }).catch(() => {
-                    document.getElementById('step2').style.display = 'none';
-                    document.getElementById('step3').style.display = 'flex';
-                });
+        let currentViewDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        let selectedDate = null;
+
+        function changeMonth(offset) {
+            currentViewDate.setMonth(currentViewDate.getMonth() + offset);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+
+            document.getElementById('month-year-display').textContent = `${monthNames[currentViewDate.getMonth()]} ${currentViewDate.getFullYear()}`;
+
+            const daysHeader = ['PO', 'ÚT', 'ST', 'ČT', 'PÁ', 'SO', 'NE'];
+            daysHeader.forEach(d => {
+                const el = document.createElement('div');
+                el.className = 'day-name';
+                el.textContent = d;
+                grid.appendChild(el);
+            });
+
+            const year = currentViewDate.getFullYear();
+            const month = currentViewDate.getMonth();
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            let emptySlots = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+
+            for (let i = 0; i < emptySlots; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'day empty';
+                grid.appendChild(empty);
             }
-        });
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayDate = new Date(year, month, i);
+                const dayEl = document.createElement('div');
+                dayEl.className = 'day';
+                dayEl.textContent = i;
+
+                if (dayDate < today) {
+                    dayEl.classList.add('disabled');
+                } else {
+                    dayEl.classList.add('selectable');
+                    
+                    if (selectedDate && dayDate.getTime() === selectedDate.getTime()) {
+                        dayEl.classList.add('selected');
+                    }
+
+                    dayEl.onclick = () => selectDate(dayDate);
+                }
+
+                grid.appendChild(dayEl);
+            }
+        }
+
+        function selectDate(dateObj) {
+            selectedDate = dateObj;
+            renderCalendar();
+
+            const btnSubmit = document.getElementById('btn-submit');
+            const dayOfWeek = dayNamesShort[selectedDate.getDay()];
+            const dayNum = selectedDate.getDate();
+            const monthGenitive = dayNamesGenitive[selectedDate.getMonth()];
+            
+            btnSubmit.textContent = `Potvrdit: ${dayOfWeek} ${dayNum}. ${monthGenitive}, 20:00`;
+            btnSubmit.disabled = false;
+        }
+
+        /* --- 4. ODESLÁNÍ DAT A GENEROVÁNÍ KALENDÁŘŮ --- */
+        function submitForm() {
+            if (!selectedDate) return;
+
+            const y = selectedDate.getFullYear();
+            const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+            const d = String(selectedDate.getDate()).padStart(2, '0');
+            const dateStr = `${y}${m}${d}`;
+            
+            const startTime = `${dateStr}T200000`;
+            const endTime = `${dateStr}T220000`;
+            const czechDateText = `${d}. ${m}. ${y}`;
+
+            const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Moje Pozvanka//CZ\nBEGIN:VEVENT\nSUMMARY:Rande\nDTSTART;TZID=Europe/Prague:${startTime}\nDTEND;TZID=Europe/Prague:${endTime}\nDESCRIPTION:Těším se!\nEND:VEVENT\nEND:VCALENDAR`;
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            document.getElementById('cal-link-apple').href = URL.createObjectURL(blob);
+
+            const ntfyTopic = 'ADELA_1'; 
+            
+            fetch(`https://ntfy.sh/${ntfyTopic}`, {
+                method: 'POST',
+                body: `Adéla řekla ANO! 🎉 Vybrala si datum: ${czechDateText} ve 20:00.`
+            }).then(() => {
+                document.getElementById('step2').classList.remove('active-step');
+                document.getElementById('step3').classList.add('active-step');
+            }).catch((err) => {
+                document.getElementById('step2').classList.remove('active-step');
+                document.getElementById('step3').classList.add('active-step');
+            });
+        }
     </script>
 </body>
 </html>
